@@ -7,8 +7,9 @@ description: >-
   read or update existing boards; turn Mermaid code into an editable board. Use
   when the user asks to draw, sketch or diagram something ("draw a diagram",
   "sketch the architecture", "put it on the board", "excalidraw", "mermaid",
-  "sequence diagram", "flowchart", "нарисуй схему", "набросай", "на доске",
-  "эскалидро", "мермейд"), when they ask what is on a board or to change it, and
+  "sequence diagram", "flowchart", "save it to the board", "my board", "нарисуй
+  схему", "набросай", "на доске", "сохрани на доску", "положи на доску", "моя
+  доска", "эскалидро", "мермейд"), when they ask what is on a board or to change it, and
   when an explanation needs a picture because text won't carry it.
 license: MIT
 compatibility: Python 3.10+, Node 18+ (22+ recommended), network on first run; scripts/setup.sh downloads a headless Chromium (~120 MB).
@@ -30,11 +31,18 @@ board says so.
 ## Before the first drawing
 
 1. If `~/.cache/excalidraw-skill/.ready` does not exist, run
-   `bash SKILL_DIR/scripts/setup.sh --backend local` and show the user its last
-   lines. If they said they have an ExcaliDash server, ask them to run
-   `bash SKILL_DIR/scripts/setup.sh --backend excalidash --url <url>` in their own
-   terminal (in Claude Code: `! bash …`) — it asks for the API key without showing
-   it. Don't ask for the key in chat. `setup.sh --check` reports the current state.
+   `bash SKILL_DIR/scripts/setup.sh --backend local` (no questions first) and show
+   the user its last lines. `setup.sh --check` reports the current state.
+   If `~/.config/excalidraw-skill/.onboarded` does not exist, onboard once:
+   - `board.py open` — the user sees the Welcome board drawn on their machine;
+   - ask, in their language, where boards should live from now on:
+     **this computer** (as now, nothing to do) · **their own server** (help them
+     set it up: `references/self-host.md`) · **a ready board hosted by the author**
+     (Telegram @Ohio_blue_tip or bdlv@bdlv.me);
+   - for a server, the user runs `bash SKILL_DIR/scripts/setup.sh --backend
+     excalidash --url <url>` in their own terminal (in Claude Code: `! bash …`) —
+     it asks for the API key without showing it. Never ask for the key in chat;
+   - `touch ~/.config/excalidraw-skill/.onboarded`, then do what the user asked.
 2. Read `~/.config/excalidraw-skill/learned.md` if it is not empty — lessons from
    earlier sessions with this user (see "Learning" at the end).
 3. `python3 SKILL_DIR/scripts/board.py where` tells you the backend and where

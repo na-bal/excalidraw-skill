@@ -73,23 +73,32 @@ never breaks the install.
    If `npx` is available, `npx skills add na-bal/excalidraw-skill -g -y -a <your-agent-id>`
    does steps 1–2 for you.
 2. `git clone --depth 1 https://github.com/na-bal/excalidraw-skill /tmp/excalidraw-skill && cp -R /tmp/excalidraw-skill/skills/excalidraw <target>/`
-3. Ask the user one question: local boards (default) or their own ExcaliDash
-   server? Then run one of:
-   - `bash <target>/excalidraw/scripts/setup.sh --backend local`
-   - for ExcaliDash, ask the user to run it in their own terminal, so the key never
-     passes through the chat: `bash <target>/excalidraw/scripts/setup.sh --backend excalidash --url <url>`
-     (it asks for the key without showing it)
-4. Success means setup printed `Ready.` and `~/.cache/excalidraw-skill/.ready` exists.
-   Exit codes: 1 is a missing requirement (tell the user what to install), 3 is a
-   failed smoke test (show the output).
-5. Reload skills or restart: Claude Code `/reload-skills`, Gemini `/skills reload`,
+3. Run `bash <target>/excalidraw/scripts/setup.sh --backend local` — no questions
+   first. Success means it printed `Ready.`. Exit codes: 1 is a missing requirement
+   (tell the user what to install), 3 is a failed smoke test (show the output).
+4. Show the result: `python3 <target>/excalidraw/scripts/board.py open` opens the
+   Welcome board drawn on their machine.
+5. Then ask where boards should live from now on:
+   - **this computer** — as now, nothing to do;
+   - **their own server** — help them set up ExcaliDash step by step:
+     [`skills/excalidraw/references/self-host.md`](skills/excalidraw/references/self-host.md).
+     At the end the user runs `bash <target>/excalidraw/scripts/setup.sh --backend excalidash --url <url>`
+     in their own terminal, so the API key never passes through the chat;
+   - **a ready board hosted by the author** — Telegram [@Ohio_blue_tip](https://t.me/Ohio_blue_tip) or bdlv@bdlv.me.
+
+   Then `touch ~/.config/excalidraw-skill/.onboarded`.
+6. Reload skills or restart: Claude Code `/reload-skills`, Gemini `/skills reload`,
    others need a restart.
-6. Check: "draw a diagram of three boxes". You should get a board link.
+   Tell the user they can now just say "draw…", "put it on the board" or "what's on
+   my board" in any conversation.
 
 Heads-up: setup downloads Chromium, so cloud sandboxes without network access
 won't work.
 
 ## Running your own board server
+
+Short checklist your agent follows to walk you through it:
+[`references/self-host.md`](skills/excalidraw/references/self-host.md).
 
 The `excalidash` backend talks to [ExcaliDash](https://github.com/ZimengXiong/ExcaliDash).
 It's a self-hosted Excalidraw with named boards, collections, version history,
