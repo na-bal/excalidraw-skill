@@ -28,8 +28,12 @@ and publishes them with `scripts/board.py`. Requirements: Node 22+, Python 3.10+
 | 8 — Comic Shanns | 0.49–0.53 | ~0.69 | 0.55 | 0.55 |
 
 Note: 1 is Virgil, not Excalifont, and these are ceilings, not averages.
-`scene.text_width()` rounds up with headroom: uppercase 0.68, Cyrillic 0.58,
-Latin 0.52, wide letters 0.80.
+The table is coarse: digits (0.43–0.70, "2" is 0.70), "T" 0.86, "$" 0.72, "%" and
+"—" 0.93, arrows 1.0 don't fit the letter classes. `scene.text_width()` uses a
+per-character table of measured Excalifont widths, each rounded up to a bucket
+(≤6% step); unknown letters fall back to 0.72 (0.88 uppercase), emoji/CJK to 1.1.
+It is an upper bound: on ~530 labels from 13 sample scenes fittext never had to
+widen one, and the estimate is ~4% wider on average (max 10%).
 
 ## Text width and clipped letters
 
@@ -48,10 +52,15 @@ publish. Use `--no-fit` only deliberately.
 `fittext.mjs file --check` checks without writing: how many labels are clipped, and
 which text inside a container no longer fits vertically after re-measuring. In the
 second case widen the container in the generator: fittext rewraps text but does not
-move the container.
+move the container. Excalidraw wraps container text to the shape's inner box, not its
+bounding box: about `w·0.71` for an ellipse and `w/2` for a diamond (minus 10px
+padding), same for height. fittext warns `rewrapped to more lines than written` with
+the label when that adds lines — widen the shape; the vertical check uses the same
+inner height.
 
 **To look at it, use `node scripts/mmd/shot.mjs scene.excalidraw out.png`.** It is a
-screenshot of the real editor canvas, i.e. what the user will see. PNG from
+screenshot of the real editor canvas, i.e. what the user will see, with the editor
+UI (toolbar, hints, zoom bar) hidden so it doesn't cover titles and legends. PNG from
 `mmd.mjs --png` (an export) **does not show** clipping. For interactive viewing, open
 the scene on the local board (`board.py open [id]`, http://127.0.0.1:3200).
 

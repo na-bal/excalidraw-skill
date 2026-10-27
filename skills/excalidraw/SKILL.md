@@ -133,11 +133,15 @@ of machine time; the real time goes into the plan and the generator.
   if the text doesn't fit — before rendering. **The stored width affects
   rendering**: the editor clips text to it. `push` sets the exact width; don't
   tune it by hand.
-- **Text in a shape goes inside the container**, via `scene.box()`. Excalidraw
-  centers it on both axes, double-click edits it, and it moves with the box.
-  Links are needed both ways (`containerId` on the text, `boundElements` on the
-  shape) — `box()` sets them. Free text only where there is no box: titles,
-  arrow labels, annotations.
+- **Text in a shape goes inside the container**, via `scene.box()` — or
+  `ellipse(..., label=)` / `diamond(..., label=)`, which return `[shape, text]`
+  (pass `shape` to `connect`). Excalidraw centers it on both axes, double-click
+  edits it, and it moves with the shape. Links are needed both ways
+  (`containerId` on the text, `boundElements` on the shape) — these helpers set
+  them, wrap to the real text area (ellipse ≈ 0.71·w, diamond ≈ w/2, so a
+  diamond is about twice its text) and assert if it doesn't fit, naming the
+  size needed. Text color is `color=`, the outline is `stroke=`. Free text only
+  where there is no shape: titles, arrow labels, annotations.
 - **Glue a card with a shared `groupIds`** — otherwise the user drags the
   rectangle and the text stays behind.
 - **Connect with `scene.connect(a, b)`**, not a loose arrow: it binds both ends,

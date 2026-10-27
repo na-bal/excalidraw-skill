@@ -59,11 +59,12 @@ layers, stack (bands stacked vertically) — none · data flow, ETL (db → proc
 db) — by hand · ER and classes — M-img (classes M) · network, deployment (cloud and
 nodes as stamps) — none · request lifecycle (waterfall of offset bars) — none.
 
-**Business.** swimlanes (horizontal lanes, steps zigzag) — none ·
-2×2 matrix (crossed axes, one quadrant highlighted) — none · funnel, pyramid,
+**Business.** swimlanes (horizontal lanes, steps zigzag) — by hand ·
+2×2 matrix (crossed axes, one quadrant highlighted) — by hand · funnel, pyramid,
 iceberg (`poly(closed=True)`) — none · customer journey (dashed stages + emotion
-curve + emoji faces) — M-img · roadmap, Gantt (bars per lane + "today"
-line) — M-img · org chart — M · flywheel (ring + dots on it) —
+curve + emoji faces, see the emoji map in icons.md) — by hand (Mermaid `journey` is
+M-img) · roadmap (bars per lane + "today" line) — by hand (Mermaid `gantt` is
+M-img) · org chart — M · flywheel (ring + dots on it) —
 by hand · SWOT, canvas (2×2 grid by color) — none · Venn (ellipses with opacity 60) — none.
 
 **Quantitative and explainers.** scale (bars from one axis, like "cost over

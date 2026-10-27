@@ -32,6 +32,11 @@ PROMOTE_AT = 3      # non-quick icon used in this many diagrams becomes a quick-
 STALE_AFTER = 20    # quick stamp unused in the last N diagrams becomes a removal candidate
 
 QUICK = json.load(open(os.path.join(ASSETS, "quick.json"), encoding="utf-8"))
+# Fields a hand-made element in quick.json may omit.
+_DEFAULTS = dict(angle=0, strokeColor="#1e1e1e", backgroundColor="transparent", fillStyle="solid",
+                 strokeWidth=2, strokeStyle="solid", roughness=1, opacity=100, groupIds=[],
+                 frameId=None, roundness=None, version=1, versionNonce=1, isDeleted=False,
+                 boundElements=None, updated=1, link=None, locked=False)
 
 
 def _load():
@@ -49,6 +54,10 @@ def _load():
             els = [e for e in it["elements"] if not e.get("isDeleted")]
             if els:
                 lib[key] = els
+    # Hand-made quick stamps: elements live in quick.json itself (key "skill:<name>").
+    for n, v in QUICK.items():
+        if "elements" in v:
+            lib[v["key"]] = [{**_DEFAULTS, "id": f"{n}-{i}", "seed": i + 1, **e} for i, e in enumerate(v["elements"])]
     return lib
 
 
@@ -77,17 +86,85 @@ def resolve(name):
     raise KeyError(f"no stamp {name!r}. Similar: {hits[:8] or 'none'}. See: stamps.py list / find")
 
 
-def stamp(name, x, y, w=None, h=None, color=None, bare=None):
+def _rgba(c):
+    """'#rgb', '#rgba', '#rrggbb', '#rrggbbaa', 'white', 'transparent' → (r, g, b, a) or None."""
+    c = str(c or "").strip().lower()
+    if c in ("white",):
+        return 255, 255, 255, 255
+    if c in ("", "transparent", "none"):
+        return 0, 0, 0, 0
+    if not c.startswith("#") or len(c) not in (4, 5, 7, 9):
+        return None
+    h = c[1:]
+    if len(h) <= 4:
+        h = "".join(ch * 2 for ch in h)
+    try:
+        v = [int(h[i:i + 2], 16) for i in range(0, len(h), 2)]
+    except ValueError:
+        return None
+    return tuple(v + [255] * (4 - len(v)))
+
+
+def _clear(c):
+    v = _rgba(c)
+    return v is not None and v[3] == 0
+
+
+def _whiteish(c):
+    """White or near-white and visible: library icons use these as masks."""
+    v = _rgba(c)
+    return v is not None and v[3] > 0 and min(v[:3]) >= 0xF0
+
+
+def _norm(s):
+    return "".join(ch for ch in s.lower() if ch.isalnum())
+
+
+def _captions(els, key):
+    """Free text elements that are captions, not part of the drawing.
+
+    A caption repeats the item name ("Server" in it-icons:Server, "Code" under
+    xxxdeveloper_icons:code). File icons repeat the name twice, as a colored tag
+    inside and a caption under it — then only the copy outside the drawing goes.
+    Glyphs that are the drawing (">_", "｡◕‿◕｡", "zZ") don't match the name and stay."""
+    name = _norm(key.split(":", 1)[1])
+    free = [e for e in els if e["type"] == "text" and not e.get("containerId")]
+    shapes = [e for e in els if e["type"] != "text"]
+
+    def named(e):
+        t = _norm(e.get("text", ""))
+        return t and (t == name or (len(t) >= 2 and t in name))
+    hits = [e for e in free if named(e)]
+    if not hits or not shapes:
+        return hits
+    bx, by, bw, bh = bbox(shapes)
+
+    def outside(e):
+        cx, cy = e["x"] + e["width"] / 2, e["y"] + e["height"] / 2
+        return not (bx <= cx <= bx + bw and by <= cy <= by + bh)
+    return [e for e in hits if outside(e)] or hits
+
+
+def stamp(name, x, y, w=None, h=None, color=None, bare=None, bg=None, fit=None):
     """Icon at (x, y), the top-left corner. w or h set the size keeping the
-    aspect ratio. color recolors the stroke. bare=True drops the English labels
-    inside the icon (for quick stamps the default comes from quick.json)."""
+    aspect ratio; fit=(W, H) scales it to fit that box and centers it there.
+    color recolors the strokes (white masks and transparent ones stay).
+    bg paints the white masks and fills with the background color, for icons
+    placed on a colored zone. bare=True drops the captions that repeat the
+    icon's name ("Server", "Code"); for quick stamps the default comes from quick.json."""
     key, default_bare = resolve(name)
     _used.add(key)
-    src = copy.deepcopy(LIB[key])
+    # opacity 0 = invisible padding frame (it-icons): it only inflates the size
+    src = [e for e in copy.deepcopy(LIB[key]) if e.get("opacity", 100) > 0] or copy.deepcopy(LIB[key])
     if bare if bare is not None else default_bare:
-        src = [e for e in src if e["type"] != "text" or e.get("containerId")] or src
+        drop = {id(e) for e in _captions(src, key)}
+        src = [e for e in src if id(e) not in drop] or src
     bx, by, bw, bh = bbox(src)
-    k = (w / bw) if w else (h / bh) if h else 1
+    if fit:
+        k = min(fit[0] / bw, fit[1] / bh)
+        x, y = x + (fit[0] - bw * k) / 2, y + (fit[1] - bh * k) / 2
+    else:
+        k = (w / bw) if w else (h / bh) if h else 1
     ids = {e["id"]: secrets.token_hex(8) for e in src}
     gids = {g: secrets.token_hex(8) for e in src for g in e.get("groupIds", [])}
     top = secrets.token_hex(8)
@@ -110,8 +187,12 @@ def stamp(name, x, y, w=None, h=None, color=None, bare=None):
         for side in ("startBinding", "endBinding"):
             b = e.get(side)
             e[side] = dict(b, elementId=ids[b["elementId"]]) if b and b.get("elementId") in ids else None
-        if color and e.get("strokeColor") not in (None, "transparent"):
+        if color and e.get("strokeColor") and not _clear(e["strokeColor"]) and not _whiteish(e["strokeColor"]):
             e["strokeColor"] = color
+        if bg:
+            for f in ("strokeColor", "backgroundColor"):
+                if _whiteish(e.get(f)):
+                    e[f] = bg
     return src
 
 

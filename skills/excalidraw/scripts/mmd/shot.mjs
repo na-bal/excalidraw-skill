@@ -22,6 +22,8 @@ const browser = await chromium.launch();
 try {
   const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: 2 });
   await page.setContent(`<!doctype html><meta charset=utf-8><link rel=stylesheet href="${ASSETS}index.css">
+<style>.excalidraw .layer-ui__wrapper, .excalidraw .App-bottom-bar, .excalidraw .HintViewer,
+.excalidraw .welcome-screen-center, .excalidraw .scroll-back-to-content { display: none !important }</style>
 <body style="margin:0"><div id=h style="width:${width}px;height:${height}px"></div></body>`);
   await page.evaluate(async ([scene, V, ASSETS]) => {
     window.EXCALIDRAW_ASSET_PATH = ASSETS;
@@ -31,7 +33,8 @@ try {
     const api = await new Promise((ok) => createRoot(document.getElementById("h")).render(
       React.createElement(X.Excalidraw, {
         initialData: { elements: scene.elements, files: scene.files || {}, appState: { viewBackgroundColor: "#ffffff" } },
-        UIOptions: { tools: { image: false } },
+        // No toolbar, hints or zoom bar over the scene — only the editor canvas.
+        viewModeEnabled: true, zenModeEnabled: true,
         excalidrawAPI: (a) => a && ok(a),
       })));
     await document.fonts.ready;

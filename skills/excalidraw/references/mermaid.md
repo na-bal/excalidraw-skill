@@ -32,6 +32,28 @@ Keep the `.mmd` next to the `.excalidraw` — it's the source, edits go there.
   image** that can't be edited on the board. The script says so in its output. Tell
   the user or draw it natively.
 
+### Sequence: what carries over
+
+- **`rect rgb(...)` blocks convert** into a filled rectangle behind the messages,
+  but with a heavy black border (`#1e1e1e`, width 2) that fights the arrows. Soften
+  it after conversion:
+  ```python
+  import json
+  d = json.load(open("diagram.excalidraw"))
+  for e in d["elements"]:
+      if e["type"] == "rectangle" and str(e["backgroundColor"]).startswith("rgb("):
+          e["strokeColor"], e["strokeWidth"] = "transparent", 1   # or a darker tone of the fill
+  json.dump(d, open("diagram.excalidraw", "w"), ensure_ascii=False)
+  ```
+- **Participant and note colors don't carry over.** `themeVariables`
+  (`actorBkg`, `noteBkgColor`…) and CSS are ignored: participants come out unfilled
+  with black borders, notes as transparent dashed boxes. Color them the same way
+  after conversion — find the rectangle under the participant's text by
+  coordinates and set `backgroundColor` — or keep color for `rect` blocks only.
+- **`<br>` in notes works** as a line break. `fitText` may still rewrap a long line to the
+  note's width (`line two is a bit longer than the / first one`), so if exact
+  breaks matter, keep each line well under the note width.
+
 ## Why the obvious doesn't work
 
 - **The esm.sh build of mermaid ignores config**: `%%{init}%%`, frontmatter and the
