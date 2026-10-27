@@ -1,0 +1,7 @@
+# Skill report relay (public-skills/excalidraw-skill/server/report-relay, служба skill-reports, 127.0.0.1:8797).
+report.bdlv.me {
+	request_body {
+		max_size 32KB
+	}
+	reverse_proxy 127.0.0.1:8797
+}

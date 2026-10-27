@@ -1,0 +1,14 @@
+{
+  "name": "excalidraw-skill",
+  "description": "Excalidraw diagram skill for AI agents",
+  "owner": {
+    "name": "Alexander Bedelev"
+  },
+  "plugins": [
+    {
+      "name": "excalidraw",
+      "source": "./",
+      "description": "Draw diagrams in Excalidraw from your agent: generate, check visually, publish to a local board or your own ExcaliDash server."
+    }
+  ]
+}

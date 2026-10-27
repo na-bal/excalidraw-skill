@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Local board</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@excalidraw/excalidraw@0.18.1/dist/prod/index.css">
+<style>
+  :root { --bg: #f7f7f5; --fg: #1d1d1b; --muted: #77756f; --line: #e2e0da; --hi: #e9e6ff; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #1b1b1d; --fg: #ececea; --muted: #8d8b86; --line: #2e2e31; --hi: #2f2b4a; }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg);
+    font: 14px/1.35 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  #app { display: flex; height: 100%; }
+  aside { width: 240px; flex: none; border-right: 1px solid var(--line); display: flex; flex-direction: column; }
+  aside.hidden { display: none; }
+  header { padding: 12px; display: flex; gap: 8px; align-items: center; border-bottom: 1px solid var(--line); }
+  header b { flex: 1; }
+  button { font: inherit; color: inherit; background: none; border: 1px solid var(--line);
+    border-radius: 6px; padding: 3px 9px; cursor: pointer; }
+  button:hover { background: var(--hi); }
+  ul { list-style: none; margin: 0; padding: 6px; overflow: auto; flex: 1; }
+  li a { display: block; padding: 7px 8px; border-radius: 6px; color: inherit; text-decoration: none; }
+  li a.on { background: var(--hi); }
+  li small { display: block; color: var(--muted); font-size: 12px; }
+  footer { padding: 8px 12px; color: var(--muted); font-size: 12px; border-top: 1px solid var(--line); min-height: 33px; }
+  main { flex: 1; position: relative; }
+  #empty { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); }
+  #toggle { position: absolute; left: 8px; bottom: 8px; z-index: 10; background: var(--bg); }
+</style>
+</head>
+<body>
+<div id="app">
+  <aside id="side">
+    <header><b>Boards</b><button id="new" title="New board">+ New</button></header>
+    <ul id="list"></ul>
+    <footer id="status"></footer>
+  </aside>
+  <main><div id="empty">Pick a board on the left, or ask your agent to draw one.</div><div id="host" style="height:100%"></div>
+    <button id="toggle" title="Show/hide boards">☰</button></main>
+</div>
+<script type="module">
+window.EXCALIDRAW_ASSET_PATH = "https://cdn.jsdelivr.net/npm/@excalidraw/excalidraw@0.18.1/dist/prod/";
+const X = await import("https://esm.sh/@excalidraw/excalidraw@0.18.1?deps=react@19.0.0,react-dom@19.0.0");
+const React = (await import("https://esm.sh/react@19.0.0")).default;
+const { createRoot } = await import("https://esm.sh/react-dom@19.0.0/client");
+
+const $ = (id) => document.getElementById(id);
+const status = (s) => { $("status").textContent = s; };
+const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+const root = createRoot($("host"));
+let api, cur = null;   // cur: {id, name, mtime, version}
+let saveTimer = null, saving = false;
+
+// Excalidraw matches shortcuts on event.key, so tools don't switch on a
+// non-Latin layout (e.g. Cyrillic). Map single letters back by physical key.
+document.addEventListener("keydown", (e) => {
+  const t = e.target;
+  if (t.closest?.("input, textarea, [contenteditable]") || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.key.length === 1 && /[^\x00-\x7f]/.test(e.key) && /^Key[A-Z]$/.test(e.code))
+    Object.defineProperty(e, "key", { value: e.shiftKey ? e.code[3] : e.code[3].toLowerCase() });
+}, true);
+
+async function j(url, opts) {
+  const r = await fetch(url, opts);
+  return { ok: r.ok, code: r.status, data: await r.json().catch(() => ({})) };
+}
+
+async function refreshList() {
+  const { data } = await j("/api/drawings");
+  const items = data.drawings || [];
+  $("list").innerHTML = "";
+  for (const d of items) {
+    const li = document.createElement("li"), a = document.createElement("a");
+    a.href = "#" + d.id;
+    a.className = cur?.id === d.id ? "on" : "";
+    a.textContent = d.name;
+    const s = document.createElement("small");
+    s.textContent = d.updatedAt.replace("T", " ");
+    a.append(s); li.append(a); $("list").append(li);
+  }
+  return items;
+}
+
+async function load(id) {
+  const { ok, data } = await j("/api/drawings/" + encodeURIComponent(id));
+  if (!ok) { status("board not found: " + id); return; }
+  cur = { id, name: data.name, mtime: data.mtime, version: null };
+  $("empty").style.display = "none";
+  // Remount instead of updateScene: a clean editor per load, no stale state
+  // from the previous board or from before the agent's push.
+  await new Promise((ready) => root.render(React.createElement(X.Excalidraw, {
+    key: id + ":" + data.mtime,
+    initialData: { elements: data.elements, files: data.files || {}, scrollToContent: true,
+      appState: { viewBackgroundColor: data.appState?.viewBackgroundColor || "#ffffff", name: data.name } },
+    excalidrawAPI: (a) => { if (a) { api = a; ready(); } },
+    onChange, theme: dark ? "dark" : "light",
+    langCode: navigator.language.startsWith("ru") ? "ru-RU" : "en",
+  })));
+  await new Promise((r) => setTimeout(r, 300));   // let the initial onChange calls pass
+  cur.version = X.getSceneVersion(api.getSceneElementsIncludingDeleted());
+  api.scrollToContent(undefined, { fitToViewport: true, viewportZoomFactor: 0.9 });
+  document.title = data.name + " — Local board";
+  status("loaded");
+  refreshList();
+}
+
+async function save() {
+  saveTimer = null;
+  if (!cur) return;
+  if (saving) { saveTimer = setTimeout(save, 300); return; }
+  saving = true;
+  const elements = api.getSceneElementsIncludingDeleted().filter((e) => !e.isDeleted);
+  const st = api.getAppState();
+  const version = X.getSceneVersion(api.getSceneElementsIncludingDeleted());
+  const r = await j("/api/drawings/" + encodeURIComponent(cur.id), {
+    method: "PUT", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ baseMtime: cur.mtime, name: cur.name, elements, files: api.getFiles(),
+      appState: { viewBackgroundColor: st.viewBackgroundColor, gridSize: st.gridSize ?? null } }),
+  });
+  saving = false;
+  if (r.ok) { cur.mtime = r.data.mtime; cur.version = version; status("saved " + new Date().toLocaleTimeString()); }
+  else if (r.code === 409) { status("changed on disk — reloaded, your last edit was not saved"); load(cur.id); }
+  else status("save failed: " + r.code);
+}
+
+function onChange(elements) {
+  if (!cur || cur.version === null || X.getSceneVersion(elements) === cur.version) return;
+  status("editing…");
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(save, 700);
+}
+
+// The agent writes files while the tab is open: pick its changes up.
+setInterval(async () => {
+  const items = await refreshList();
+  const me = cur && items.find((d) => d.id === cur.id);
+  if (me && me.mtime !== cur.mtime && !saveTimer && !saving) load(cur.id);
+}, 2000);
+
+$("new").onclick = async () => {
+  const { data } = await j("/api/drawings", { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: "Untitled " + new Date().toLocaleString() }) });
+  if (data.id) location.hash = data.id;
+};
+$("toggle").onclick = () => $("side").classList.toggle("hidden");
+addEventListener("hashchange", () => location.hash.length > 1 && load(decodeURIComponent(location.hash.slice(1))));
+
+const items = await refreshList();
+const first = location.hash.length > 1 ? decodeURIComponent(location.hash.slice(1)) : items[0]?.id;
+if (first) { if (location.hash.slice(1) !== first) location.hash = first; else load(first); }
+</script>
+</body>
+</html>

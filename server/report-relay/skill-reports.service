@@ -1,0 +1,22 @@
+# Report relay for public skills (relay.py). Secrets in /etc/skill-reports/relay.env (600).
+[Unit]
+Description=Skill report relay (report.bdlv.me)
+After=network.target
+
+[Service]
+EnvironmentFile=-/etc/skill-reports/relay.env
+Environment=PORT=8797 SKILLS=excalidraw-skill
+ExecStart=/usr/bin/python3 /opt/skill-reports/relay.py
+Restart=on-failure
+DynamicUser=yes
+StateDirectory=skill-reports
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+NoNewPrivileges=yes
+UMask=0077
+MemoryMax=64M
+CPUQuota=20%
+
+[Install]
+WantedBy=multi-user.target
