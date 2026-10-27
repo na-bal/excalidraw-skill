@@ -6,7 +6,7 @@
 
 Скажи Claude Code, Codex, Gemini CLI, Cursor или любому агенту с поддержкой [Agent Skills](https://agentskills.io) «нарисуй, как у нас устроена регистрация» — и получишь ссылку на доску Excalidraw в стиле «от руки», которую можно править дальше. На своём компьютере или своём сервере, без регистраций.
 
-![Демо: агент рисует доску, человек двигает блок, агент дорисовывает часть, правка остаётся](docs/demo.gif)
+![До и после: ASCII-схема и та же архитектура, нарисованная скиллом, потом восемь типов схем подряд](docs/hero.gif)
 
 ```sh
 npx skills add na-bal/excalidraw-skill
@@ -24,13 +24,25 @@ npx skills add na-bal/excalidraw-skill
 Работает с Claude Code, OpenAI Codex, Gemini CLI, Cursor, GitHub Copilot, OpenCode, Amp, Goose, Devin/Windsurf.
 
 <details>
-<summary><b>Галерея: что умеет рисовать (7 схем)</b></summary>
+<summary><b>Галерея: что умеет рисовать (10 схем)</b></summary>
 
 Всё нарисовал агент с этим скиллом по коротким запросам обычными словами. Любой файл `.excalidraw` можно открыть на [excalidraw.com](https://excalidraw.com) или на локальной доске: всё редактируется.
 
 **Архитектура** — зоны, значки, очередь и внешний сервис · [`.excalidraw`](docs/gallery/architecture.excalidraw)
 
 ![Архитектура](docs/gallery/architecture.png)
+
+**Дорожки (swimlanes)** — процесс через четыре команды, развилка и место, где всё застревает · [`.excalidraw`](docs/gallery/swimlane.excalidraw)
+
+![Дорожки](docs/gallery/swimlane.png)
+
+**Блок-схема** — ромбы решений с ветками «да» и «нет» · [`.excalidraw`](docs/gallery/flowchart.excalidraw)
+
+![Блок-схема](docs/gallery/flowchart.png)
+
+**Матрица 2×2** — польза против усилий, размер кружка по числу голосов · [`.excalidraw`](docs/gallery/matrix.excalidraw)
+
+![Матрица 2×2](docs/gallery/matrix.png)
 
 **Sequence-диаграмма** — из Mermaid: вход через OAuth с заметками и блоком alt · [`.excalidraw`](docs/gallery/sequence.excalidraw)
 

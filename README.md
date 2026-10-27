@@ -9,7 +9,7 @@ agent with [Agent Skills](https://agentskills.io) — and get a link to a
 hand-drawn Excalidraw board you can keep editing. On your computer or your own
 server, no accounts.
 
-![Demo: the agent draws a board, the user moves a box, the agent adds a part and the edit stays](docs/demo.gif)
+![Before and after: an ASCII diagram vs the same architecture drawn by the skill, then eight diagram types drawn one after another](docs/hero.gif)
 
 ```sh
 npx skills add na-bal/excalidraw-skill
@@ -34,13 +34,25 @@ Works with Claude Code, OpenAI Codex, Gemini CLI, Cursor, GitHub Copilot,
 OpenCode, Amp, Goose, Devin/Windsurf.
 
 <details>
-<summary><b>Gallery: what it can draw (7 diagrams)</b></summary>
+<summary><b>Gallery: what it can draw (10 diagrams)</b></summary>
 
 All drawn by an agent with this skill, from short plain-language requests. Open any `.excalidraw` file at [excalidraw.com](https://excalidraw.com) or in the local board to see it's all editable.
 
 **Architecture** — zones, icons, a queue and an external service · [`.excalidraw`](docs/gallery/architecture.excalidraw)
 
 ![Architecture](docs/gallery/architecture.png)
+
+**Swimlanes** — a process across four teams, a decision and the place it gets stuck · [`.excalidraw`](docs/gallery/swimlane.excalidraw)
+
+![Swimlanes](docs/gallery/swimlane.png)
+
+**Flowchart** — decision diamonds with yes/no branches · [`.excalidraw`](docs/gallery/flowchart.excalidraw)
+
+![Flowchart](docs/gallery/flowchart.png)
+
+**2×2 matrix** — impact vs effort, dot size by votes · [`.excalidraw`](docs/gallery/matrix.excalidraw)
+
+![2×2 matrix](docs/gallery/matrix.png)
 
 **Sequence diagram** — from Mermaid: OAuth login with notes and an alt block · [`.excalidraw`](docs/gallery/sequence.excalidraw)
 
