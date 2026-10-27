@@ -40,5 +40,5 @@ keys. The skill is tested with 0.6.0.
   or run one instance per person.
 - The admin can see everything (impersonation) — say so to the people you host.
 
-**Don't want to run a server?** The skill's author hosts boards: Telegram
+**Don't want to run a server?** Ask the skill's author for help with hosting: Telegram
 [@Ohio_blue_tip](https://t.me/Ohio_blue_tip) or bdlv@bdlv.me.

@@ -2,28 +2,71 @@
 
 [Русская версия](README.ru.md)
 
-Your agent draws diagrams in Excalidraw: it plans the picture, generates the
-scene in code, looks at the result through the real editor renderer, fixes what
-looks wrong and hands you a link to a board you can keep editing by hand.
+**Your agent draws on a real board. You fix it by hand. It remembers.**
 
-![Example: a diagram drawn by the skill](docs/example.png)
+Say "draw how our signup works" to Claude Code, Codex, Gemini CLI, Cursor or any
+agent with [Agent Skills](https://agentskills.io) — and get a link to a
+hand-drawn Excalidraw board you can keep editing. On your computer or your own
+server, no accounts.
 
-- **Hand-drawn, editable diagrams**, not images: every box and arrow stays an
-  Excalidraw object you can move and edit.
-- **It looks before it shows you.** Every diagram is rendered in headless Chromium
-  with Excalidraw's own fonts, so clipped labels and overlaps get caught.
-- **One board per conversation.** Each part of the board is a frame. Redrawing a
-  part replaces only that frame, so your manual edits stay.
-- **Mermaid too.** "Make it a mermaid sequence diagram" turns into an editable
-  board, with no copy-pasting into dialogs.
-- **450+ icons** from the Excalidraw libraries (people, databases, clouds,
-  devices), stamped in instead of drawn from circles.
-- **It learns your taste.** Corrections like "less color" or "database on the
-  right" go into a small notes file and apply next time.
+![Demo: the agent draws a board, the user moves a box, the agent adds a part and the edit stays](docs/demo.gif)
 
-Works with any agent that supports [Agent Skills](https://agentskills.io): Claude
-Code, OpenAI Codex, Gemini CLI, Cursor, GitHub Copilot, OpenCode, Amp, Goose,
-Devin/Windsurf.
+```sh
+npx skills add na-bal/excalidraw-skill
+```
+
+Or give your agent this page and say "install this skill" — it sets everything
+up and shows you a welcome board.
+
+- **Your edits stay.** Each part of a board is a frame. The agent redraws only its
+  own frame, so what you moved or renamed by hand survives.
+- **It learns your taste.** It looks at what you changed by hand and what you
+  said ("less color", "database on the right") and applies it next time.
+- **It looks before it shows you.** Every diagram is rendered with Excalidraw's
+  own fonts in headless Chromium, so clipped labels and overlaps get caught first.
+- **Real, editable diagrams**, not images: every box and arrow is an Excalidraw
+  object you can move.
+- **Mermaid too.** "Make it a mermaid sequence diagram" becomes an editable board,
+  no copy-pasting into dialogs.
+- **450+ icons** from the Excalidraw libraries: people, databases, clouds, devices.
+
+Works with Claude Code, OpenAI Codex, Gemini CLI, Cursor, GitHub Copilot,
+OpenCode, Amp, Goose, Devin/Windsurf.
+
+<details>
+<summary><b>Gallery: what it can draw (7 diagrams)</b></summary>
+
+All drawn by an agent with this skill, from short plain-language requests. Open any `.excalidraw` file at [excalidraw.com](https://excalidraw.com) or in the local board to see it's all editable.
+
+**Architecture** — zones, icons, a queue and an external service · [`.excalidraw`](docs/gallery/architecture.excalidraw)
+
+![Architecture](docs/gallery/architecture.png)
+
+**Sequence diagram** — from Mermaid: OAuth login with notes and an alt block · [`.excalidraw`](docs/gallery/sequence.excalidraw)
+
+![Sequence diagram](docs/gallery/sequence.png)
+
+**Customer journey** — stages, an emotion curve, drop-off and pain points · [`.excalidraw`](docs/gallery/journey.excalidraw)
+
+![Customer journey](docs/gallery/journey.png)
+
+**Roadmap** — three tracks on a time axis, status, a milestone and a today line · [`.excalidraw`](docs/gallery/roadmap.excalidraw)
+
+![Roadmap](docs/gallery/roadmap.png)
+
+**Mind map** — a hub, six branches, curved connectors · [`.excalidraw`](docs/gallery/mindmap.excalidraw)
+
+![Mind map](docs/gallery/mindmap.png)
+
+**Decision + comparison** — two questions and three options with pros and cons · [`.excalidraw`](docs/gallery/comparison.excalidraw)
+
+![Decision + comparison](docs/gallery/comparison.png)
+
+**Explainer** — how a long meeting becomes a summary, chunk by chunk · [`.excalidraw`](docs/gallery/explainer.excalidraw)
+
+![Explainer](docs/gallery/explainer.png)
+
+</details>
 
 ## Pick where your boards live
 
@@ -31,7 +74,7 @@ Devin/Windsurf.
 |---|---|---|
 | **Local** (default) | Boards are `.excalidraw` files in a folder on your computer. You view and edit them in a local board at `http://127.0.0.1:3200`. | Nothing extra |
 | **Your own server** | A self-hosted [ExcaliDash](https://github.com/ZimengXiong/ExcaliDash): boards with links, history, login, sharing with your team | A small VPS with Docker, a domain |
-| **Hosted board** | Same as your own server, without running one | Message the author (see below) |
+| **Need help with hosting?** | Don't want to run a server yourself — ask the author | A message (see below) |
 
 You can switch later by re-running setup.
 
@@ -84,7 +127,7 @@ never breaks the install.
      [`skills/excalidraw/references/self-host.md`](skills/excalidraw/references/self-host.md).
      At the end the user runs `bash <target>/excalidraw/scripts/setup.sh --backend excalidash --url <url>`
      in their own terminal, so the API key never passes through the chat;
-   - **a ready board hosted by the author** — Telegram [@Ohio_blue_tip](https://t.me/Ohio_blue_tip) or bdlv@bdlv.me.
+   - **help with hosting from the author** — Telegram [@Ohio_blue_tip](https://t.me/Ohio_blue_tip) or bdlv@bdlv.me.
 
    Then `touch ~/.config/excalidraw-skill/.onboarded`.
 6. Reload skills or restart: Claude Code `/reload-skills`, Gemini `/skills reload`,
@@ -133,10 +176,9 @@ Two known rough edges in the editor:
 
 The local board in this skill already has the keyboard fix.
 
-## Hosted board
+## Need help with hosting?
 
-Don't want to run a server? I can host a board for you, with your own login and a
-link to share with your team. Message me: Telegram [@Ohio_blue_tip](https://t.me/Ohio_blue_tip) or [bdlv@bdlv.me](mailto:bdlv@bdlv.me).
+Don't want to run a server yourself? Write to me and we'll figure something out: Telegram [@Ohio_blue_tip](https://t.me/Ohio_blue_tip) or [bdlv@bdlv.me](mailto:bdlv@bdlv.me).
 
 ## Reporting problems
 

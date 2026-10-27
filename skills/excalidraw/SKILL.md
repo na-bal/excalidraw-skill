@@ -37,7 +37,7 @@ board says so.
    - `board.py open` — the user sees the Welcome board drawn on their machine;
    - ask, in their language, where boards should live from now on:
      **this computer** (as now, nothing to do) · **their own server** (help them
-     set it up: `references/self-host.md`) · **a ready board hosted by the author**
+     set it up: `references/self-host.md`) · **help with hosting from the author**
      (Telegram @Ohio_blue_tip or bdlv@bdlv.me);
    - for a server, the user runs `bash SKILL_DIR/scripts/setup.sh --backend
      excalidash --url <url>` in their own terminal (in Claude Code: `! bash …`) —
