@@ -2,6 +2,10 @@
 
 [Русская версия](README.ru.md)
 
+Hi! Agents are great at code and pretty bad at drawing. This skill fixes the second
+part: beautiful hand-drawn diagrams you can edit by hand and share with friends and
+teammates.
+
 **Your agent draws on a real board. You fix it by hand. It remembers.**
 
 Say "draw how our signup works" to Claude Code, Codex, Gemini CLI, Cursor or any
