@@ -109,7 +109,7 @@ Per agent, by hand:
 
 | Agent | Command or folder |
 |---|---|
-| Claude Code | `claude plugin marketplace add na-bal/excalidraw-skill` then `claude plugin install excalidraw@excalidraw-skill`, or copy `skills/excalidraw` into `~/.claude/skills/` |
+| Claude Code | `claude plugin marketplace add na-bal/excalidraw-skill` then `claude plugin install agent-whiteboard@excalidraw-skill`, or copy `skills/excalidraw` into `~/.claude/skills/` |
 | Codex, Cursor, Copilot, OpenCode, Amp, Goose, Devin | copy `skills/excalidraw` into `~/.agents/skills/` |
 | Gemini CLI | `gemini skills install https://github.com/na-bal/excalidraw-skill --path skills/excalidraw` |
 | Antigravity | copy `skills/excalidraw` into `~/.gemini/config/skills/` |

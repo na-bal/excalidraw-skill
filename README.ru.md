@@ -96,7 +96,7 @@ npx skills add na-bal/excalidraw-skill
 
 | Агент | Команда или папка |
 |---|---|
-| Claude Code | `claude plugin marketplace add na-bal/excalidraw-skill`, потом `claude plugin install excalidraw@excalidraw-skill`. Или скопируй `skills/excalidraw` в `~/.claude/skills/` |
+| Claude Code | `claude plugin marketplace add na-bal/excalidraw-skill`, потом `claude plugin install agent-whiteboard@excalidraw-skill`. Или скопируй `skills/excalidraw` в `~/.claude/skills/` |
 | Codex, Cursor, Copilot, OpenCode, Amp, Goose, Devin | скопируй `skills/excalidraw` в `~/.agents/skills/` |
 | Gemini CLI | `gemini skills install https://github.com/na-bal/excalidraw-skill --path skills/excalidraw` |
 | Antigravity | скопируй `skills/excalidraw` в `~/.gemini/config/skills/` |

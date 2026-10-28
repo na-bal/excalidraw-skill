@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.3
+The Claude Code plugin is now called `agent-whiteboard` (the skill inside is still `excalidraw`); it has an icon.
+
 ## 1.1.2
 Boards can be renamed: say "rename the board", or double-click its name in the local board list. Thanks for the request!
 

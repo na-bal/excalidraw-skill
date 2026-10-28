@@ -6,7 +6,7 @@
   },
   "plugins": [
     {
-      "name": "excalidraw",
+      "name": "agent-whiteboard",
       "source": "./",
       "description": "Draw diagrams in Excalidraw from your agent: generate, check visually, publish to a local board or your own ExcaliDash server."
     }

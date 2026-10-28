@@ -15,7 +15,7 @@ description: >-
 license: MIT
 compatibility: Python 3.10+, Node 18+ (22+ recommended), network on first run; scripts/setup.sh downloads a headless Chromium (~120 MB).
 metadata:
-  version: "1.1.2"
+  version: "1.1.3"
   homepage: https://github.com/na-bal/excalidraw-skill
 ---
 
@@ -170,7 +170,7 @@ of machine time; the real time goes into the plan and the generator.
 ## Drawing rules (learned the hard way)
 
 - **No automatic line wrapping.** Each line is its own text element, vertical
-  step `fontSize × 1.25` — or pass a list of lines to `box()`.
+  step `fontSize × 1.25` — or give `box()` a list of lines.
 - **Compute box width with `scene.text_width()`** — an estimate with a margin
   (capitals and wide letters are wider). `scene.card()` computes it and asserts
   if the text doesn't fit — before rendering. **The stored width affects
@@ -178,7 +178,7 @@ of machine time; the real time goes into the plan and the generator.
   tune it by hand.
 - **Text in a shape goes inside the container**, via `scene.box()` — or
   `ellipse(..., label=)` / `diamond(..., label=)`, which return `[shape, text]`
-  (pass `shape` to `connect`). Excalidraw centers it on both axes, double-click
+  (give `connect` the shape). Excalidraw centers it on both axes, double-click
   edits it, and it moves with the shape. Links are needed both ways
   (`containerId` on the text, `boundElements` on the shape) — these helpers set
   them, wrap to the real text area (ellipse ≈ 0.71·w, diamond ≈ w/2, so a

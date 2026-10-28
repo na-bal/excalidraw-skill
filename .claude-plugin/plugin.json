@@ -1,10 +1,11 @@
 {
-  "name": "excalidraw",
-  "version": "1.1.2",
+  "name": "agent-whiteboard",
+  "version": "1.1.3",
   "description": "Draw diagrams in Excalidraw from your agent: generate, check visually, publish to a local board or your own ExcaliDash server.",
   "author": { "name": "Alexander Bedelev", "email": "bdlv@bdlv.me" },
   "homepage": "https://github.com/na-bal/excalidraw-skill",
   "repository": "https://github.com/na-bal/excalidraw-skill",
   "license": "MIT",
+  "icon": ".claude-plugin/icon.png",
   "keywords": ["excalidraw", "diagram", "mermaid", "whiteboard", "excalidash"]
 }
