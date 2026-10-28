@@ -214,6 +214,10 @@ You can also write to me directly: Telegram [@Ohio_blue_tip](https://t.me/Ohio_b
 - **Updates:** checked only when you ask ("update the skill") or after the skill
   misbehaved and you said yes to a check. It downloads from GitHub; nothing about
   you is sent. An update keeps a backup and never touches what the agent learned.
+- **Bug reports:** only when you say yes after seeing the exact text. Paths,
+  hostnames and secrets are stripped, board contents are never included. They
+  go to the author's relay at report.bdlv.me, which forwards them to the author
+  on Telegram; the author keeps them to fix the skill.
 - The skill never uses excalidraw.com sharing unless you explicitly ask.
 
 ## What's inside
