@@ -7,6 +7,7 @@
 #   setup.sh --backend excalidash --url https://draw.example.com   (key from $EXCALIDASH_API_KEY)
 #   setup.sh --check          only report what's installed and configured
 #   setup.sh --skip-browser   don't download Chromium (screenshots and push won't work)
+#   setup.sh --no-open        don't open the Welcome board in the browser at the end
 #
 # Installs playwright-core into ~/.cache/excalidraw-skill, Chromium headless shell
 # (~120 MB) into Playwright's shared browser cache (reused if already there), and
@@ -19,7 +20,7 @@ CACHE="${EXCALIDRAW_SKILL_CACHE:-${XDG_CACHE_HOME:-$HOME/.cache}/excalidraw-skil
 CONF_DIR="${EXCALIDRAW_SKILL_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/excalidraw-skill}"
 CONFIG="$CONF_DIR/config"
 
-BACKEND="" DRAWINGS="" PORT="" URL="" CHECK=0 SKIP_BROWSER=0
+BACKEND="" DRAWINGS="" PORT="" URL="" CHECK=0 SKIP_BROWSER=0 NO_OPEN=0
 while [ $# -gt 0 ]; do
   case "$1" in
     --backend) BACKEND="$2"; shift 2 ;;
@@ -28,7 +29,8 @@ while [ $# -gt 0 ]; do
     --url) URL="$2"; shift 2 ;;
     --check) CHECK=1; shift ;;
     --skip-browser) SKIP_BROWSER=1; shift ;;
-    -h|--help) sed -n '2,14p' "$0"; exit 0 ;;
+    --no-open) NO_OPEN=1; shift ;;
+    -h|--help) sed -n '2,15p' "$0"; exit 0 ;;
     *) echo "unknown argument: $1" >&2; exit 2 ;;
   esac
 done
@@ -50,12 +52,12 @@ missing=0
 if command -v python3 >/dev/null && python3 -c 'import sys; sys.exit(sys.version_info < (3, 10))'; then
   ok "python3 $(python3 -c 'import platform; print(platform.python_version())')"
 else
-  bad "python3 3.10+ not found"; missing=1
+  bad "python3 3.10+ not found (macOS ships 3.9: brew install python@3.12, or uv python install 3.12)"; missing=1
 fi
 if command -v node >/dev/null && [ "$(node -p 'process.versions.node.split(".")[0]')" -ge 18 ]; then
   ok "node $(node -v)"
 else
-  bad "node 18+ not found (22+ recommended) — https://nodejs.org"; missing=1
+  bad "node 18+ not found (22+ recommended): brew install node, or https://nodejs.org"; missing=1
 fi
 command -v npm >/dev/null && ok "npm $(npm -v)" || { bad "npm not found"; missing=1; }
 [ $missing -eq 0 ] || { echo "Install the missing tools and re-run." >&2; exit 1; }
@@ -149,10 +151,32 @@ if [ "$B" = excalidash ]; then
 elif [ $SKIP_BROWSER -eq 0 ] && [ -z "$(python3 "$DIR/board.py" list)" ]; then
   WELCOME="$CACHE/welcome.excalidraw"
   STAMPS_NO_USAGE=1 python3 "$DIR/welcome.py" "$WELCOME" >/dev/null
-  python3 "$DIR/board.py" push "$WELCOME" --name "Welcome" | sed 's/^/      /' && ok "first board created: a note from the author"
+  WELCOME_URL="$(python3 "$DIR/board.py" push "$WELCOME" --name "Welcome" | grep -o 'http[^ ]*' | head -1)"
+  [ -n "$WELCOME_URL" ] && ok "first board created: $WELCOME_URL"
 fi
 date '+%Y-%m-%d %H:%M' > "$CACHE/.ready"
+python3 "$DIR/update.py" baseline   # lets an update tell local edits from the author's files
 
 echo
 echo "Ready. Boards: $(python3 "$DIR/board.py" where | sed -n 's/^board: *//p')"
-[ "$B" = local ] && echo "Open the local board: python3 $DIR/board.py open"
+if [ "$B" = local ]; then
+  # Show the board right away: a bare "Ready." made agents end the install there.
+  W_ID="${WELCOME_URL:+${WELCOME_URL##*#}}"
+  if [ $NO_OPEN -eq 0 ] && [ ! -f "$CONF_DIR/.onboarded" ]; then
+    python3 "$DIR/board.py" open $W_ID >/dev/null && ok "opened in the browser: ${WELCOME_URL:-local board}"
+  else
+    echo "Open the local board: python3 $DIR/board.py open $W_ID"
+  fi
+fi
+if [ ! -f "$CONF_DIR/.onboarded" ] && [ $TTY -eq 0 ]; then
+  cat <<EOF
+
+AGENT: the install is not finished until you do this, in this conversation
+(full text: "Right after install" in $(cd "$DIR/.." && pwd)/SKILL.md):
+  1. Tell the user, in their language, that the Welcome board is open and what
+     the skill does (four short points from that section).
+  2. Ask where boards should live: this computer / their own server / help with
+     hosting from the author. Then touch $CONF_DIR/.onboarded
+  3. Offer a first drawing right now — don't send them to a new session.
+EOF
+fi

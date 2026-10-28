@@ -33,12 +33,12 @@
 </head>
 <body>
 <div id="app">
-  <aside id="side">
+  <aside id="side" class="hidden">
     <header><b>Boards</b><button id="new" title="New board">+ New</button></header>
     <ul id="list"></ul>
     <footer id="status"></footer>
   </aside>
-  <main><div id="empty">Pick a board on the left, or ask your agent to draw one.</div><div id="host" style="height:100%"></div>
+  <main><div id="empty">Pick a board in the list (☰ bottom left), or ask your agent to draw one.</div><div id="host" style="height:100%"></div>
     <button id="toggle" title="Show/hide boards">☰</button></main>
 </div>
 <script type="module">
@@ -136,6 +136,7 @@ function onChange(elements) {
 // The agent writes files while the tab is open: pick its changes up.
 setInterval(async () => {
   const items = await refreshList();
+if (!items.length) $("side").classList.remove("hidden");
   const me = cur && items.find((d) => d.id === cur.id);
   if (me && me.mtime !== cur.mtime && !saveTimer && !saving) load(cur.id);
 }, 2000);
@@ -145,10 +146,14 @@ $("new").onclick = async () => {
     body: JSON.stringify({ name: "Untitled " + new Date().toLocaleString() }) });
   if (data.id) location.hash = data.id;
 };
-$("toggle").onclick = () => $("side").classList.toggle("hidden");
+// The list starts collapsed so the board gets the whole window; the choice is remembered.
+const pref = (v) => { try { return v === undefined ? localStorage.getItem("side") : localStorage.setItem("side", v); } catch { return null; } };
+if (pref() === "open") $("side").classList.remove("hidden");
+$("toggle").onclick = () => pref($("side").classList.toggle("hidden") ? "closed" : "open");
 addEventListener("hashchange", () => location.hash.length > 1 && load(decodeURIComponent(location.hash.slice(1))));
 
 const items = await refreshList();
+if (!items.length) $("side").classList.remove("hidden");
 const first = location.hash.length > 1 ? decodeURIComponent(location.hash.slice(1)) : items[0]?.id;
 if (first) { if (location.hash.slice(1) !== first) location.hash = first; else load(first); }
 </script>

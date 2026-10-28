@@ -133,23 +133,21 @@ never breaks the install.
    does steps 1–2 for you.
 2. `git clone --depth 1 https://github.com/na-bal/excalidraw-skill /tmp/excalidraw-skill && cp -R /tmp/excalidraw-skill/skills/excalidraw <target>/`
 3. Run `bash <target>/excalidraw/scripts/setup.sh --backend local` — no questions
-   first. Success means it printed `Ready.`. Exit codes: 1 is a missing requirement
-   (tell the user what to install), 3 is a failed smoke test (show the output).
-4. Show the result: `python3 <target>/excalidraw/scripts/board.py open` opens the
-   Welcome board drawn on their machine.
-5. Then ask where boards should live from now on:
-   - **this computer** — as now, nothing to do;
-   - **their own server** — help them set up ExcaliDash step by step:
-     [`skills/excalidraw/references/self-host.md`](skills/excalidraw/references/self-host.md).
-     At the end the user runs `bash <target>/excalidraw/scripts/setup.sh --backend excalidash --url <url>`
-     in their own terminal, so the API key never passes through the chat;
-   - **help with hosting from the author** — Telegram [@Ohio_blue_tip](https://t.me/Ohio_blue_tip) or bdlv@bdlv.me.
-
-   Then `touch ~/.config/excalidraw-skill/.onboarded`.
-6. Reload skills or restart: Claude Code `/reload-skills`, Gemini `/skills reload`,
-   others need a restart.
-   Tell the user they can now just say "draw…", "put it on the board" or "what's on
-   my board" in any conversation.
+   first. Success means it printed `Ready.` and opened the Welcome board in the
+   browser. Exit codes: 1 is a missing requirement (tell the user what to install),
+   3 is a failed smoke test (show the output).
+4. **The install isn't done at `Ready.`** Follow "Right after install" in
+   [`skills/excalidraw/SKILL.md`](skills/excalidraw/SKILL.md), in this conversation:
+   - tell the user the Welcome board is open and what the skill does (four short points);
+   - ask where boards should live from now on: **this computer** · **their own
+     server** ([`references/self-host.md`](skills/excalidraw/references/self-host.md);
+     the user runs `setup.sh --backend excalidash --url <url>` in their own
+     terminal, so the API key never passes through the chat) · **help with hosting
+     from the author** — Telegram [@Ohio_blue_tip](https://t.me/Ohio_blue_tip) or bdlv@bdlv.me;
+   - `touch ~/.config/excalidraw-skill/.onboarded` and offer a first drawing right away.
+5. Don't send the user to a new session. Claude Code picks up a new skill folder by
+   itself; Gemini `/skills reload`; other agents may need a restart — say so only if
+   yours does.
 
 Heads-up: setup downloads Chromium, so cloud sandboxes without network access
 won't work.
@@ -213,6 +211,9 @@ You can also write to me directly: Telegram [@Ohio_blue_tip](https://t.me/Ohio_b
   the renderer load Excalidraw's code from public CDNs (esm.sh, jsdelivr), so
   first use needs internet. Your scenes are not sent anywhere.
 - **Server mode:** scenes go only to the server you configured.
+- **Updates:** checked only when you ask ("update the skill") or after the skill
+  misbehaved and you said yes to a check. It downloads from GitHub; nothing about
+  you is sent. An update keeps a backup and never touches what the agent learned.
 - The skill never uses excalidraw.com sharing unless you explicitly ask.
 
 ## What's inside
@@ -222,6 +223,7 @@ skills/excalidraw/
   SKILL.md            instructions for the agent
   scripts/setup.sh    install + configure + smoke test
   scripts/board.py    boards: push/get/list/open, local board server, frames
+  scripts/update.py   update from GitHub on request, keeping local edits
   scripts/scene.py    scene building blocks (box, connect, curve, code_card…)
   scripts/stamps.py   450+ icons from Excalidraw libraries
   scripts/mmd/        headless Excalidraw: Mermaid → scene, font fitting, screenshots
