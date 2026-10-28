@@ -28,6 +28,8 @@
   footer { padding: 8px 12px; color: var(--muted); font-size: 12px; border-top: 1px solid var(--line); min-height: 33px; }
   main { flex: 1; position: relative; }
   #empty { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); }
+  input.rename { width: 100%; font: inherit; color: inherit; background: var(--bg);
+    border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; }
   #toggle { position: absolute; left: 8px; bottom: 8px; z-index: 10; background: var(--bg); }
 </style>
 </head>
@@ -68,7 +70,32 @@ async function j(url, opts) {
   return { ok: r.ok, code: r.status, data: await r.json().catch(() => ({})) };
 }
 
+let renaming = false;   // don't rebuild the list under an open name field
+
+async function rename(d, a) {
+  renaming = true;
+  const input = document.createElement("input");
+  input.value = d.name; input.maxLength = 120; input.className = "rename";
+  a.replaceWith(input); input.focus(); input.select();
+  let done = false;
+  const finish = async (keep) => {
+    if (done) return; done = true;
+    const name = input.value.trim();
+    if (keep && name && name !== d.name) {
+      const r = await j("/api/drawings/" + encodeURIComponent(d.id), {
+        method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name }) });
+      if (r.ok && cur?.id === d.id) { cur.name = name; cur.mtime = r.data.mtime; document.title = name + " — Local board"; }
+      status(r.ok ? "renamed" : "rename failed: " + r.code);
+    }
+    renaming = false;
+    refreshList();
+  };
+  input.onkeydown = (e) => { if (e.key === "Enter") finish(true); if (e.key === "Escape") finish(false); };
+  input.onblur = () => finish(true);
+}
+
 async function refreshList() {
+  if (renaming) return [...$("list").children].map((li) => li.board);
   const { data } = await j("/api/drawings");
   const items = data.drawings || [];
   $("list").innerHTML = "";
@@ -77,6 +104,9 @@ async function refreshList() {
     a.href = "#" + d.id;
     a.className = cur?.id === d.id ? "on" : "";
     a.textContent = d.name;
+    a.title = "Double-click to rename";
+    a.ondblclick = (e) => { e.preventDefault(); rename(d, a); };
+    li.board = d;
     const s = document.createElement("small");
     s.textContent = d.updatedAt.replace("T", " ");
     a.append(s); li.append(a); $("list").append(li);
@@ -136,7 +166,6 @@ function onChange(elements) {
 // The agent writes files while the tab is open: pick its changes up.
 setInterval(async () => {
   const items = await refreshList();
-if (!items.length) $("side").classList.remove("hidden");
   const me = cur && items.find((d) => d.id === cur.id);
   if (me && me.mtime !== cur.mtime && !saveTimer && !saving) load(cur.id);
 }, 2000);

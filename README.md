@@ -222,7 +222,7 @@ You can also write to me directly: Telegram [@Ohio_blue_tip](https://t.me/Ohio_b
 skills/excalidraw/
   SKILL.md            instructions for the agent
   scripts/setup.sh    install + configure + smoke test
-  scripts/board.py    boards: push/get/list/open, local board server, frames
+  scripts/board.py    boards: push/get/list/open/rename, local board server, frames
   scripts/update.py   update from GitHub on request, keeping local edits
   scripts/scene.py    scene building blocks (box, connect, curve, code_card…)
   scripts/stamps.py   450+ icons from Excalidraw libraries

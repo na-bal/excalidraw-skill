@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.2
+Boards can be renamed: say "rename the board", or double-click its name in the local board list. Thanks for the request!
+
 ## 1.1.1
 Installing now ends on the open Welcome board: the agent says what the skill can do and asks where boards should live, instead of stopping at "Ready". Clearer hints when Python or Node is too old. The local board opens with the board list collapsed (☰ to show it). "Update the skill" now updates it from GitHub without losing what the agent learned or your local fixes; nothing is checked in the background.
 

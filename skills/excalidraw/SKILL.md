@@ -15,7 +15,7 @@ description: >-
 license: MIT
 compatibility: Python 3.10+, Node 18+ (22+ recommended), network on first run; scripts/setup.sh downloads a headless Chromium (~120 MB).
 metadata:
-  version: "1.1.1"
+  version: "1.1.2"
   homepage: https://github.com/na-bal/excalidraw-skill
 ---
 
@@ -107,6 +107,9 @@ Backends behind `board.py` (set by setup, `board.py where` shows which):
   user sees and edits them at `http://127.0.0.1:3200` (`board.py open [id]`
   starts it and opens the browser). Their edits are saved back to the file.
 - **excalidash** — the user's ExcaliDash server; links are `<url>/editor/<id>`.
+
+Other board commands: `list`, `get <id>`, `rename <id> "New name"`, `rm <id>`.
+On the local board the user renames a board by double-clicking it in the list (☰).
 
 ## Mermaid or "draw" — the user's words decide
 

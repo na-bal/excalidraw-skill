@@ -393,6 +393,14 @@ def cmd_rm(a):
     print(f"deleted: {a.id}")
 
 
+def cmd_rename(a):
+    b = backend()
+    name = a.name.strip()[:120]
+    if not name:
+        sys.exit("the name is empty")
+    b.update(a.id, {**b.get(a.id), "name": name})
+    print(f"renamed: {name}  {b.link(a.id)}")
+
 def cmd_where(_):
     c, b = config(), backend()
     print(f"backend: {c.get('BACKEND', 'local')}\nconfig:  {CONFIG if os.path.exists(CONFIG) else LEGACY}")
@@ -523,6 +531,19 @@ def cmd_serve(a):
                            "appState": {"viewBackgroundColor": "#ffffff", "gridSize": None}})
             self.send(200, {"id": id})
 
+        def do_PATCH(self):   # rename from the board list
+            if not self.guard(write=True):
+                return
+            id = self.board_id()
+            if not id or not os.path.exists(b.path(id)):
+                return self.send(404, {"error": "not found"})
+            name = str(self.body().get("name") or "").strip()[:120]
+            if not name:
+                return self.send(400, {"error": "empty name"})
+            cur = b.read(id)
+            b.save(id, {**b.get(id), "name": name}, cur.get("boardVersion", 1) + 1)
+            self.send(200, {"mtime": self.mtime(id)})
+
         def do_DELETE(self):
             if not self.guard(write=True):
                 return
@@ -552,6 +573,7 @@ u.add_argument("--force", action="store_true", help="redraw the frame even if it
 u.set_defaults(fn=cmd_push)
 d = sub.add_parser("diff", help="what the user changed by hand in a frame since the last push")
 d.add_argument("id"); d.add_argument("--frame", required=True); d.set_defaults(fn=cmd_diff)
+n = sub.add_parser("rename"); n.add_argument("id"); n.add_argument("name"); n.set_defaults(fn=cmd_rename)
 r = sub.add_parser("rm"); r.add_argument("id"); r.set_defaults(fn=cmd_rm)
 o = sub.add_parser("open"); o.add_argument("id", nargs="?"); o.add_argument("--no-browser", action="store_true")
 o.set_defaults(fn=cmd_open)
